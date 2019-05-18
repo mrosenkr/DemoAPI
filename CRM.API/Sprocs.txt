@@ -1,0 +1,62 @@
+﻿/****** Object:  StoredProcedure [dbo].[Person_Changes]    Script Date: 5/18/2019 1:46:29 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+/*
+	exec dbo.Person_Changes @SyncVersion = 0
+	exec dbo.Person_Changes @SyncVersion = 1
+	exec dbo.Person_Changes @SyncVersion = 2
+	exec dbo.Person_Changes @SyncVersion = 3
+	exec dbo.Person_Changes @SyncVersion = 4
+*/
+ALTER procedure [dbo].[Person_Changes]
+(
+	@SyncVersion bigint = null
+)
+as
+begin
+	set nocount on
+
+	Select
+		p.id,
+		p.firstname,
+		p.lastname
+	From Person p
+	join CHANGETABLE(changes dbo.Person, @SyncVersion) ct
+		on ct.id = p.id
+	;
+
+	Select
+		ct.id
+	From CHANGETABLE(changes dbo.Person, @SyncVersion) ct
+	where
+		ct.sys_change_operation = 'D'
+	;
+
+	select CHANGE_TRACKING_CURRENT_VERSION() as [SyncVersion];
+	
+end
+
+go
+
+/****** Object:  StoredProcedure [dbo].[Person_GetAll]    Script Date: 5/18/2019 1:55:32 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER procedure [dbo].[Person_GetAll]
+as
+begin
+	set nocount on
+
+	Select
+		p.id,
+		p.firstname,
+		p.lastname
+	From Person p
+	
+end
+
+go
